@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Death Clock ⏳</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Death Clock ⏳</h1>
+
+  <input type="number" id="deathYear" placeholder="Enter your expected death year">
+  <button onclick="startClock()">Start</button>
+
+  <div class="clock" style="display:none;" id="clockContainer">
+    <svg width="300" height="300">
+      <circle cx="150" cy="150" r="140" stroke-width="10" fill="none" class="ring-bg"/>
+      <circle cx="150" cy="150" r="110" stroke-width="10" fill="none" class="ring-bg"/>
+      <circle cx="150" cy="150" r="80"  stroke-width="10" fill="none" class="ring-bg"/>
+      
+      <circle id="yearRing" cx="150" cy="150" r="140" stroke="#00ffc8" stroke-width="10" fill="none" class="ring" stroke-dasharray="879" stroke-dashoffset="0"/>
+      <circle id="minuteRing" cx="150" cy="150" r="110" stroke="#ff9900" stroke-width="10" fill="none" class="ring" stroke-dasharray="691" stroke-dashoffset="0"/>
+      <circle id="secondRing" cx="150" cy="150" r="80"  stroke="#ff2e63" stroke-width="10" fill="none" class="ring" stroke-dasharray="503" stroke-dashoffset="0"/>
+    </svg>
+    <div class="label" id="labelText">Time Remaining</div>
+  </div>
+
+  <div class="quote" id="quoteBox">"Time waits for no one. Live today."</div>
+  <div class="milestone" id="milestoneBox"></div>
+
+  <div class="goals">
+    <h3>🎯 Your Life Goals</h3>
+    <input type="text" id="goalInput" placeholder="Add a goal">
+    <button onclick="addGoal()">Add</button>
+    <div id="goalList"></div>
+  </div>
+
+  <audio id="chime" src="assets/chime.mp3"></audio>
+  <script src="app.js"></script>
+
+</body>
+</html>
