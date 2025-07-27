@@ -1,84 +1,78 @@
+/* style.css */
 body {
   margin: 0;
-  background: #0d0d0d;
-  color: #fff;
   font-family: 'Segoe UI', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+  background: radial-gradient(circle at center, #0a0a23 40%, #2c003e);
+  color: #fff;
+  overflow: hidden;
+  height: 100vh;
 }
 
-h1 { color: #ff5252; margin-bottom: 10px; }
-input, button {
-  padding: 10px;
-  margin: 5px;
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal {
+  background: #1c1c3a;
+  padding: 2em;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal input {
+  padding: 0.5em;
+  font-size: 1em;
+  border-radius: 6px;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  margin-top: 1em;
 }
 
-input { background: #1a1a1a; color: white; }
-button { background: #ff5252; color: white; cursor: pointer; }
+.modal button {
+  margin-top: 1em;
+  padding: 0.5em 1em;
+  background: #4c00ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-.clock {
+.clock-container {
   position: relative;
-  width: 300px;
-  height: 300px;
-  margin-top: 20px;
+  width: 100vw;
+  height: 100vh;
 }
 
-svg { transform: rotate(-90deg); }
-.label {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.1rem;
-}
-
-.ring-bg { stroke: #333; }
 .ring {
-  stroke-linecap: round;
-  transform-origin: 50% 50%;
-  transition: stroke-dashoffset 1s linear;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: center;
+  width: 80vmin;
+  height: 80vmin;
 }
 
-.quote, .milestone {
-  margin-top: 20px;
-  font-style: italic;
-  color: #999;
-  text-align: center;
-}
-
-.goals {
-  margin-top: 30px;
-  max-width: 400px;
-  width: 100%;
-}
-
-.goals input {
-  width: 60%;
-}
-
-.goal-item {
-  background: #1c1c1c;
-  padding: 10px;
-  margin: 5px 0;
+.highlight-bar {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 58, 120, 0.9);
+  padding: 0.6em 1.2em;
   border-radius: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 1.5em;
+  font-size: 1.5em;
+  z-index: 5;
 }
 
-.goal-item.done {
-  text-decoration: line-through;
-  color: #777;
-}
-
-.goal-item button {
-  background: #00ffc8;
-  font-size: 0.8rem;
-  padding: 5px 8px;
+.highlight-bar span {
+  font-weight: bold;
 }
