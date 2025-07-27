@@ -1,73 +1,90 @@
-const yearRing = document.getElementById("yearRing");
-const minuteRing = document.getElementById("minuteRing");
-const secondRing = document.getElementById("secondRing");
-const labelText = document.getElementById("labelText");
-const quoteBox = document.getElementById("quoteBox");
-const milestoneBox = document.getElementById("milestoneBox");
-const chime = document.getElementById("chime");
+// app.js
+const overlay = document.getElementById("overlay");
+const deathInput = document.getElementById("deathYear");
+const yearsLeftSpan = document.getElementById("yearsLeft");
+const timeLeftSpan = document.getElementById("timeLeft");
+const finalYearSpan = document.getElementById("finalYear");
 
-const quotes = [
-  "“You may delay, but time will not.” – Benjamin Franklin",
-  "“Lost time is never found again.”",
-  "“The future depends on what you do today.” – Gandhi",
-  "“Someday” is a disease that will take your dreams to the grave.",
-  "“Time is what we want most, but what we use worst.”"
-];
-
-let lastMinute = -1;
+let deathYear;
 
 function startClock() {
-  const deathYear = parseInt(document.getElementById("deathYear").value);
+  deathYear = parseInt(deathInput.value);
+  if (!deathYear || deathYear < new Date().getFullYear()) {
+    alert("Please enter a valid future year.");
+    return;
+  }
+  overlay.style.display = "none";
+  finalYearSpan.textContent = deathYear;
+  generateRings();
+  updateTime();
+  setInterval(updateTime, 1000);
+}
+
+function generateRings() {
   const currentYear = new Date().getFullYear();
-  if (!deathYear || deathYear <= currentYear) {
-    alert("Enter a valid future year.");
+  const totalYears = deathYear - currentYear;
+  const yearRing = document.getElementById("yearRing");
+  const minuteRing = document.getElementById("minuteRing");
+  const secondRing = document.getElementById("secondRing");
+
+  createRing(yearRing, totalYears + 1, "year", 200);
+  createRing(minuteRing, 60, "minute", 140);
+  createRing(secondRing, 60, "second", 80);
+}
+
+function createRing(svg, segments, type, radius) {
+  svg.innerHTML = "";
+  const center = radius;
+  svg.setAttribute("width", radius * 2);
+  svg.setAttribute("height", radius * 2);
+
+  for (let i = 0; i < segments; i++) {
+    const angle = (360 / segments) * i;
+    const x = center + radius * Math.cos((angle - 90) * Math.PI / 180);
+    const y = center + radius * Math.sin((angle - 90) * Math.PI / 180);
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", x);
+    text.setAttribute("y", y);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("alignment-baseline", "middle");
+    text.setAttribute("fill", "#ccc");
+    text.setAttribute("font-size", "12");
+    text.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
+
+    if (type === "year") {
+      text.textContent = new Date().getFullYear() + i;
+    } else {
+      text.textContent = (i < 10 ? "0" : "") + i;
+    }
+
+    svg.appendChild(text);
+  }
+}
+
+function updateTime() {
+  const now = new Date();
+  const end = new Date(deathYear, 0, 1);
+  const diff = end - now;
+
+  if (diff <= 0) {
+    yearsLeftSpan.textContent = "0";
+    timeLeftSpan.textContent = "00:00:00";
     return;
   }
 
-  document.getElementById("clockContainer").style.display = "block";
-  const endDate = new Date(`January 1, ${deathYear} 00:00:00`).getTime();
+  const years = deathYear - now.getFullYear();
+  const hours = 23 - now.getHours();
+  const minutes = 59 - now.getMinutes();
+  const seconds = 59 - now.getSeconds();
 
-  setInterval(() => {
-    const now = new Date();
-    const distance = endDate - now;
-    const yearsLeft = deathYear - now.getFullYear();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
+  yearsLeftSpan.textContent = years;
+  timeLeftSpan.textContent = `${hours.toString().padStart(2, '0')} : ${minutes
+    .toString()
+    .padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
 
-    yearRing.style.strokeDashoffset = (879 * (1 - (yearsLeft / (deathYear - currentYear)))).toFixed(2);
-    minuteRing.style.strokeDashoffset = (691 * (minutes / 60)).toFixed(2);
-    secondRing.style.strokeDashoffset = (503 * (seconds / 60)).toFixed(2);
-
-    labelText.innerText = `${yearsLeft}y ${59 - minutes}m ${59 - seconds}s left`;
-
-    // Play chime + quote every new minute
-    if (minutes !== lastMinute) {
-      lastMinute = minutes;
-      chime.play();
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      quoteBox.innerText = randomQuote;
-      milestoneBox.innerText = `🎉 Another minute closer. Make it count.`;
-      setTimeout(() => milestoneBox.innerText = "", 5000);
-    }
-
-  }, 1000);
-}
-
-// Goal logic
-function addGoal() {
-  const input = document.getElementById("goalInput");
-  const text = input.value.trim();
-  if (!text) return;
-  const list = document.getElementById("goalList");
-  const div = document.createElement("div");
-  div.className = "goal-item";
-  div.innerHTML = `<span>${text}</span><button onclick="markDone(this)">Done</button>`;
-  list.appendChild(div);
-  input.value = "";
-}
-
-function markDone(btn) {
-  const item = btn.parentElement;
-  item.classList.toggle("done");
-  btn.innerText = item.classList.contains("done") ? "Undo" : "Done";
+  // Rotate rings
+  document.getElementById("secondRing").style.transform = `translate(-50%, -50%) rotate(-${6 * now.getSeconds()}deg)`;
+  document.getElementById("minuteRing").style.transform = `translate(-50%, -50%) rotate(-${6 * now.getMinutes()}deg)`;
+  const yearProgress = ((deathYear - now.getFullYear()) / (deathYear - (new Date().getFullYear()))) * 360;
+  document.getElementById("yearRing").style.transform = `translate(-50%, -50%) rotate(-${yearProgress}deg)`;
 }
