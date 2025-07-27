@@ -1,90 +1,85 @@
 // app.js
-const overlay = document.getElementById("overlay");
-const deathInput = document.getElementById("deathYear");
-const yearsLeftSpan = document.getElementById("yearsLeft");
-const timeLeftSpan = document.getElementById("timeLeft");
-const finalYearSpan = document.getElementById("finalYear");
+const overlay = document.getElementById('overlay');
+const deathInput = document.getElementById('deathYear');
+const yearRing = document.getElementById('yearRing');
+const minuteRing = document.getElementById('minuteRing');
+const secondRing = document.getElementById('secondRing');
+const yearsLeftEl = document.getElementById('yearsLeft');
+const timeLeftEl = document.getElementById('timeLeft');
+const finalYearEl = document.getElementById('finalYear');
 
-let deathYear;
+let finalYear = null;
+let totalYears = null;
+let ringRadius = 200;
 
-function startClock() {
-  deathYear = parseInt(deathInput.value);
-  if (!deathYear || deathYear < new Date().getFullYear()) {
-    alert("Please enter a valid future year.");
-    return;
-  }
-  overlay.style.display = "none";
-  finalYearSpan.textContent = deathYear;
-  generateRings();
-  updateTime();
-  setInterval(updateTime, 1000);
-}
+function createRing(svg, total, type, radius) {
+  svg.setAttribute('viewBox', '-250 -250 500 500');
+  svg.innerHTML = '';
 
-function generateRings() {
-  const currentYear = new Date().getFullYear();
-  const totalYears = deathYear - currentYear;
-  const yearRing = document.getElementById("yearRing");
-  const minuteRing = document.getElementById("minuteRing");
-  const secondRing = document.getElementById("secondRing");
+  const angleStep = 360 / total;
+  for (let i = 0; i < total; i++) {
+    const angle = i * angleStep - 90;
+    const rad = (angle * Math.PI) / 180;
+    const x = Math.cos(rad) * radius;
+    const y = Math.sin(rad) * radius;
 
-  createRing(yearRing, totalYears + 1, "year", 200);
-  createRing(minuteRing, 60, "minute", 140);
-  createRing(secondRing, 60, "second", 80);
-}
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('alignment-baseline', 'middle');
+    text.setAttribute('fill', '#ccc');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('transform', `rotate(${angle + 90} ${x} ${y})`);
 
-function createRing(svg, segments, type, radius) {
-  svg.innerHTML = "";
-  const center = radius;
-  svg.setAttribute("width", radius * 2);
-  svg.setAttribute("height", radius * 2);
-
-  for (let i = 0; i < segments; i++) {
-    const angle = (360 / segments) * i;
-    const x = center + radius * Math.cos((angle - 90) * Math.PI / 180);
-    const y = center + radius * Math.sin((angle - 90) * Math.PI / 180);
-    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", x);
-    text.setAttribute("y", y);
-    text.setAttribute("text-anchor", "middle");
-    text.setAttribute("alignment-baseline", "middle");
-    text.setAttribute("fill", "#ccc");
-    text.setAttribute("font-size", "12");
-    text.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
-
-    if (type === "year") {
+    if (type === 'year') {
       text.textContent = new Date().getFullYear() + i;
     } else {
-      text.textContent = (i < 10 ? "0" : "") + i;
+      text.textContent = String(i).padStart(2, '0');
     }
 
     svg.appendChild(text);
   }
 }
 
-function updateTime() {
-  const now = new Date();
-  const end = new Date(deathYear, 0, 1);
-  const diff = end - now;
+function startClock() {
+  finalYear = parseInt(deathInput.value);
+  const currentYear = new Date().getFullYear();
+  totalYears = finalYear - currentYear;
 
-  if (diff <= 0) {
-    yearsLeftSpan.textContent = "0";
-    timeLeftSpan.textContent = "00:00:00";
+  if (isNaN(finalYear) || totalYears <= 0) {
+    alert('Please enter a valid future year.');
     return;
   }
 
-  const years = deathYear - now.getFullYear();
-  const hours = 23 - now.getHours();
-  const minutes = 59 - now.getMinutes();
-  const seconds = 59 - now.getSeconds();
+  overlay.style.display = 'none';
+  finalYearEl.textContent = finalYear;
 
-  yearsLeftSpan.textContent = years;
-  timeLeftSpan.textContent = `${hours.toString().padStart(2, '0')} : ${minutes
-    .toString()
-    .padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
+  createRing(yearRing, totalYears + 1, 'year', 180);
+  createRing(minuteRing, 60, 'minute', 140);
+  createRing(secondRing, 60, 'second', 100);
 
-  // Rotate rings
-  document.getElementById("secondRing").style.transform = `translate(-50%, -50%) rotate(-${6 * now.getSeconds()}deg)`;
-  document.getElementById("minuteRing").style.transform = `translate(-50%, -50%) rotate(-${6 * now.getMinutes()}deg)`;
-  const yearProgress = ((deathYear - now.getFullYear()) / (deathYear - (new Date().getFullYear()))) * 360;
-  document.getElementById("yearRing").style.transform = `translate(-50%, -50%) rotate(-${yearProgress}deg)`;
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  const now = new Date();
+  const end = new Date(finalYear, 0, 1);
+  const totalSec = Math.floor((end - now) / 1000);
+
+  const yearsLeft = end.getFullYear() - now.getFullYear();
+  const mins = now.getMinutes();
+  const secs = now.getSeconds();
+
+  const degY = ((totalYears - yearsLeft) / totalYears) * 360;
+  const degM = (mins / 60) * 360;
+  const degS = (secs / 60) * 360;
+
+  yearRing.style.transform = `translate(-50%, -50%) rotate(-${degY}deg)`;
+  minuteRing.style.transform = `translate(-50%, -50%) rotate(-${degM}deg)`;
+  secondRing.style.transform = `translate(-50%, -50%) rotate(-${degS}deg)`;
+
+  yearsLeftEl.textContent = yearsLeft;
+  timeLeftEl.textContent = now.toTimeString().split(' ')[0];
 }
